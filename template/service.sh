@@ -6,8 +6,8 @@ rm -rf "$MODDIR/target"
        HIDELIST="
        com.google.android.gms
        com.google.android.gms.unstable
-       $(magisk --sqlite "SELECT process FROM denylist" | sed "s/^process=//g")
-       $(magisk --sqlite "SELECT process FROM hidelist" | sed "s/^process=//g")"
+       $([ -f "$MODDIR/config/denylist" ] && magisk --sqlite "SELECT process FROM denylist" | sed "s/^process=//g")
+       $([ -f "$MODDIR/config/hidelist" ] && magisk --sqlite "SELECT process FROM hidelist" | sed "s/^process=//g")"
        rm -rf "$MODDIR/target.tmp"
        rm -rf "$MODDIR/target.old"
        mkdir "$MODDIR/target.tmp" 
