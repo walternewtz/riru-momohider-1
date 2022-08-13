@@ -402,8 +402,6 @@ void onModuleLoaded() {
     magisk_tmp_ = ReadMagiskTmp();
     LOGI("MAGISKTMP is %s", magisk_tmp_);
     hide_isolated_ = true;
-    magic_handle_app_zygote_ = Exists(kMagicHandleAppZygote);
-    use_nsholder_ = Exists(kSetNs);
     RegisterHooks();
 }
 
@@ -416,6 +414,8 @@ static void forkAndSpecializePre(
         jobjectArray* pkgDataInfoList,
         jobjectArray* whitelistedDataInfoList, jboolean* bindMountAppDataDirs,
         jboolean* bindMountAppStorageDirs) {
+    magic_handle_app_zygote_ = Exists(kMagicHandleAppZygote);
+    use_nsholder_ = Exists(kSetNs);
     const char *process = env->GetStringUTFChars(*niceName, NULL);
     InitProcessState(*_uid, *is_child_zygote, process);
     if (hide_isolated_) {
@@ -439,6 +439,8 @@ static void specializeAppProcessPre(
         jboolean *startChildZygote, jstring *instructionSet, jstring *appDataDir,
         jboolean *isTopApp, jobjectArray *pkgDataInfoList, jobjectArray *whitelistedDataInfoList,
         jboolean *bindMountAppDataDirs, jboolean *bindMountAppStorageDirs) {
+    magic_handle_app_zygote_ = Exists(kMagicHandleAppZygote);
+    use_nsholder_ = Exists(kSetNs);
     const char *process = env->GetStringUTFChars(*niceName, NULL);
     InitProcessState(*uid, *startChildZygote, process);
     if (hide_isolated_)
