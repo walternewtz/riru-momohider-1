@@ -240,8 +240,11 @@ void InitProcessState(int uid, bool is_child_zygote, const char *process) {
     char buf2[4098];
     // another.stupid_name:abcdefgh... -> another.stupid_name
     for (int i=0; process[i]; i++){
-	if (process[i] == ':') break;
-	buf2[i] = process[i];
+        if (process[i] == ':'){
+            buf2[i] = '\0';
+	        break;
+	    }
+        buf2[i] = process[i];
     }
     int app_id = uid % 100000;
 
