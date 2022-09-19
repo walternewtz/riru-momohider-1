@@ -9,6 +9,8 @@
 #include <mntent.h>
 #include <sys/mount.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "magiskhide.h"
 #include "../../log.h"
 
@@ -29,15 +31,26 @@ void parse_mnt(const char *file, const function<void(mntent*)> &fn) {
     }
 }
 
-static void lazy_unmount(const char* mountpoint) {
-    if (strcmp(mountpoint, "/system/framework/XposedBridge.jar") == 0) {
-        LOGE("Skip unmount XposedBridge.jar because the rovo89's Xposed framework can't handle this case.");
-        return;
+int fork_dont_care() {
+    if (int pid = fork()) {
+        waitpid(pid, nullptr, 0);
+        return pid;
+    } else if (fork()) {
+        exit(0);
     }
+    return 0;
+}
+
+static void lazy_unmount(const char* mountpoint) {
     if (umount2(mountpoint, MNT_DETACH) != -1) {
         //LOGD("hide_policy: Unmounted (%s)\n", mountpoint);
-    } else {
-        LOGE("hide_policy: can't unmount %s: %s", mountpoint, strerror(errno));
+    }
+}
+
+static void lazy_unmount_d(const char* mountpoint) {
+    if (fork_dont_care() == 0) {
+        lazy_unmount(mountpoint);
+        _exit(0);
     }
 }
 
@@ -45,8 +58,6 @@ static void lazy_unmount(const char* mountpoint) {
 // MomoHider changed: don't print log in app process
 void hide_unmount(const char* magisk_tmp) {
     // MomoHider changed: don't change namespace, the target process is always myself.
-//    if (switch_mnt_ns())
-//        return;
 
     vector<string> targets;
 
@@ -64,8 +75,10 @@ strncmp(mentry->mnt_dir, "/" #dir, sizeof("/" #dir) - 1) == 0)
 #undef TMPFS_MNT
 
     reverse(targets.begin(), targets.end());
-    for (auto &s : targets)
-        lazy_unmount(s.data());
+    for (auto &s : targets) {
+        lazy_unmount_d(s.data());
+        usleep(100);
+    }
     targets.clear();
 
     // Unmount all Magisk created mounts
@@ -76,7 +89,9 @@ strncmp(mentry->mnt_dir, "/" #dir, sizeof("/" #dir) - 1) == 0)
     });
 
     reverse(targets.begin(), targets.end());
-    for (auto &s : targets)
-        lazy_unmount(s.data());
+    for (auto &s : targets) {
+        lazy_unmount_d(s.data());
+        usleep(100);
+    }
 }
 

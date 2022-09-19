@@ -96,22 +96,8 @@ contains_reset_prop() {
   contains_reset_prop ro.boot.hwc CN GLOBAL
   contains_reset_prop ro.boot.hwcountry China GLOBAL
 
-  check_reset_prop "ro.boot.vbmeta.device_state" "locked"
-  check_reset_prop "ro.boot.verifiedbootstate" "green"
-  check_reset_prop "ro.boot.flash.locked" "1"
-  check_reset_prop "ro.boot.veritymode" "enforcing"
-  check_reset_prop "ro.boot.warranty_bit" "0"
-  check_reset_prop "ro.warranty_bit" "0"
-  check_reset_prop "ro.debuggable" "0"
-  check_reset_prop "ro.secure" "1"
-  check_reset_prop "ro.adb.secure" "1"
-  check_reset_prop "ro.build.type" "user"
-  check_reset_prop "ro.build.tags" "release-keys"
-  check_reset_prop "ro.vendor.boot.warranty_bit" "0"
-  check_reset_prop "ro.vendor.warranty_bit" "0"
-  check_reset_prop "vendor.boot.vbmeta.device_state" "locked"
-  check_reset_prop "vendor.boot.verifiedbootstate" "green"
-  check_reset_prop "ro.secureboot.lockstate" "locked"
+  # Load MagiskHide props
+  resetprop -n --file "$MODDIR/hide.prop"
 
   # Hide that we booted from recovery when magisk is in recovery mode
   contains_reset_prop "ro.bootmode" "recovery" "unknown"

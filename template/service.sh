@@ -1,23 +1,25 @@
 #!/system/bin/sh
+
+MAGISKTMP="$(magisk --path)" || MAGISKTMP=/sbin
+
 MODDIR="${0%/*}"
-rm -rf "$MODDIR/target"
-## hidelist for momohider
+TARGETLIST="$MAGISKTMP/momohider"
+mkdir -p "$TARGETLIST"
+## hidelist for momohider, reload every 3s
 { while true; do
        HIDELIST="
-       com.google.android.gms
-       com.google.android.gms.unstable
-       $([ -f "$MODDIR/config/denylist" ] && magisk --sqlite "SELECT process FROM denylist" | sed "s/^process=//g")
-       $([ -f "$MODDIR/config/hidelist" ] && magisk --sqlite "SELECT process FROM hidelist" | sed "s/^process=//g")"
-       rm -rf "$MODDIR/target.tmp"
-       rm -rf "$MODDIR/target.old"
-       mkdir "$MODDIR/target.tmp" 
+       $([ -f "$MODDIR/config/denylist" ] && ( magisk --sqlite "SELECT process FROM denylist" | sed "s/^process=//g" ) \
+	   || magisk --sqlite "SELECT process FROM hidelist" | sed "s/^process=//g")"
+       rm -rf "$TARGETLIST/target.tmp"
+       rm -rf "$TARGETLIST/target.old"
+       mkdir "$TARGETLIST/target.tmp" 
        for process in $HIDELIST; do
-          echo -n >"$MODDIR/target.tmp/$process"
+          echo -n >"$TARGETLIST/target.tmp/$process"
        done
-       mv -fT "$MODDIR/target" "$MODDIR/target.old"
-       mv -fT "$MODDIR/target.tmp" "$MODDIR/target"
-       rm -rf "$MODDIR/target.tmp"
-       rm -rf "$MODDIR/target.old"
+       mv -fT "$TARGETLIST/target" "$TARGETLIST/target.old"
+       mv -fT "$TARGETLIST/target.tmp" "$TARGETLIST/target"
+       rm -rf "$TARGETLIST/target.tmp"
+       rm -rf "$TARGETLIST/target.old"
        sleep 3 || break
 done; } &
 . "$MODDIR/props.sh"

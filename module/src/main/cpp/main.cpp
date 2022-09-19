@@ -262,12 +262,12 @@ void InitProcessState(int uid, bool is_child_zygote, const char *process) {
     }
     int app_id = uid % 100000;
 
-    sprintf(buf, "%s/target/%s", module_dir_, process);
+    sprintf(buf, "%s/momohider/target/%s", magisk_tmp_, process);
     if (access(buf, F_OK) == 0)
         // treat target as isolated process :}
         isolated_ = true;
 
-    sprintf(buf, "%s/target/%s", module_dir_, buf2);
+    sprintf(buf, "%s/momohider/target/%s", magisk_tmp_, buf2);
     if (app_id >= 90000 && access(buf, F_OK) == 0)
         // target isolated process
         isolated_ = true;

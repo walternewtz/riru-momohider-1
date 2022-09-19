@@ -7,17 +7,17 @@ One year ago, I made this project because my bank app detected the device is roo
 We expect to officially release Shamiko on February 2nd. [Click here to download Shamiko.](https://lsposed.github.io/)
 
 ## Background
-Many applications now detect Magisk for security, Magisk provided "Magisk Hide" to hide the modified traces but not completely hidden, magisk still can be detected by [MagiskDetector](https://github.com/vvb2060/MagiskDetector). This module tries to make it more hidden.
 
-Features:
-| Config name | Description |
-|  ----  | ----  |
-| isolated | Apply Magisk Hide for isolated process and app zygotes. This feature is deprecated because it will unmount Magisk modified files for every isolated processes, and the unmounting time cannot be well controlled, which may cause some modules to not work. For almost apps, [Magisk Alpha](https://github.com/vvb2060/magisk/tree/alpha) or the latest Magisk canary + [Riru-Unshare](https://github.com/vvb2060/riru-unshare) is enough.|
-| setns | Faster new way to hide Magisk in isolated processes. Requires config "isolated" is enabled. |
-| app_zygote_magic | Make a app named "Momo" cannot detect Magisk hide is running. |
-| initrc | Hide the modified traces of init.rc |
+Many applications now detect Magisk for security, Magisk provided "MagiskHide" to hide the modified traces but not completely hidden, magisk still can be detected by [MagiskDetector](https://github.com/vvb2060/MagiskDetector). This module tries to make it more hidden.
 
-~~Note: Since 0.0.3, all features are disabled by default, you need to create a file named `/data/adb/(lite_)modules/riru_momohider/config/<config name>` to enable it.~~ All features are enabled by default
+Momohider is a Riru module to hide Magisk root and Magisk modules, as the alternate MagiskHide, Momohider uses hidelist or denylist, you just need to add any apps to hidelist and Momohider will take over.
+
+For official magisk v24+ users and other fork, you need to enable `denylist` mode:
+
+- Enable denylist mode (create `denylist` file in config directory /data/adb/modules/riru-momohider), then momohide will use denylist instead of hidelist.
+- Temporarily toggle zygisk on because you can't configure denylist if zygisk is toggle off. **REMEMBER WE NEED THE LIST, NOT ZYGISK+DENYLIST ENABLED**
+- After deny configuration, toggle off zygisk
+
 
 ## Requirement
 Rooted Android 7.0+ devices with Magisk and [Riru](https://github.com/RikkaApps/Riru) V25+.
