@@ -12,6 +12,8 @@ INITRC_NAME="system/etc/init/hw/init.rc"
 INITRC="/$INITRC_NAME"
 
 # First try SAR path
+
+# After Magisk v24.3, hiding Magisk service code will no longer work because Magisk will delete rootdir when daemon starts
 MAGISKRC="$MAGISK_TMP/.magisk/rootdir/$INITRC_NAME"
 # SAR path not found = Rootfs, Magisk modifies the init.rc file directly
 [ -f "$MAGISKRC" ] || MAGISKRC=$INITRC
@@ -23,7 +25,7 @@ trim() {
   echo $trimmed
 }
 
-# https://github.com/topjohnwu/Magisk/blob/master/native/jni/init/rootdir.cpp#L24
+# https://github.com/topjohnwu/Magisk/blob/v23.0/native/jni/init/rootdir.cpp#L24
 grep_flash_recovery() {
   # Some devices don't have the flash_recovery service
   # (like Samsung renamed it to "ota_cleanup" but Magisk won't remove it, so we don't need to do anything for this)
@@ -45,7 +47,7 @@ reset_flash_recovery() {
   [ "$(getprop 'init.svc.flash_recovery' 2>/dev/null)" = "" ] || return
 
   # Set a "fake" state for the service
-  resetprop 'init.svc.flash_recovery' 'stopped'
+  resetprop -n 'init.svc.flash_recovery' 'stopped'
 }
 
 grep_service_name() {
@@ -74,14 +76,14 @@ check_reset_prop() {
   local NAME=$1
   local EXPECTED=$2
   local VALUE=$(resetprop $NAME)
-  [ -z $VALUE ] || [ $VALUE = $EXPECTED ] || resetprop $NAME $EXPECTED
+  [ -z $VALUE ] || [ $VALUE = $EXPECTED ] || resetprop -n $NAME $EXPECTED
 }
 
 contains_reset_prop() {
   local NAME=$1
   local CONTAINS=$2
   local NEWVAL=$3
-  [[ "$(resetprop $NAME)" = *"$CONTAINS"* ]] && resetprop $NAME $NEWVAL
+  [[ "$(resetprop $NAME)" = *"$CONTAINS"* ]] && resetprop -n $NAME $NEWVAL
 }
 
 {
@@ -95,6 +97,9 @@ contains_reset_prop() {
   # See https://github.com/topjohnwu/Magisk/pull/2470
   contains_reset_prop ro.boot.hwc CN GLOBAL
   contains_reset_prop ro.boot.hwcountry China GLOBAL
+
+  # some stupid banking apps check this prop
+  check_reset_prop sys.oem_unlock_allowed 0
 
   # Load MagiskHide props
   resetprop -n --file "$MODDIR/hide.prop"
