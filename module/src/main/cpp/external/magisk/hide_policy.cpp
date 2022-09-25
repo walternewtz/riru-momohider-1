@@ -31,26 +31,9 @@ void parse_mnt(const char *file, const function<void(mntent*)> &fn) {
     }
 }
 
-int fork_dont_care() {
-    if (int pid = fork()) {
-        waitpid(pid, nullptr, 0);
-        return pid;
-    } else if (fork()) {
-        exit(0);
-    }
-    return 0;
-}
-
 static void lazy_unmount(const char* mountpoint) {
     if (umount2(mountpoint, MNT_DETACH) != -1) {
         //LOGD("hide_policy: Unmounted (%s)\n", mountpoint);
-    }
-}
-
-static void lazy_unmount_d(const char* mountpoint) {
-    if (fork_dont_care() == 0) {
-        lazy_unmount(mountpoint);
-        _exit(0);
     }
 }
 
@@ -76,8 +59,7 @@ strncmp(mentry->mnt_dir, "/" #dir, sizeof("/" #dir) - 1) == 0)
 
     reverse(targets.begin(), targets.end());
     for (auto &s : targets) {
-        lazy_unmount_d(s.data());
-        usleep(100);
+        lazy_unmount(s.data());
     }
     targets.clear();
 
@@ -90,8 +72,7 @@ strncmp(mentry->mnt_dir, "/" #dir, sizeof("/" #dir) - 1) == 0)
 
     reverse(targets.begin(), targets.end());
     for (auto &s : targets) {
-        lazy_unmount_d(s.data());
-        usleep(100);
+        lazy_unmount(s.data());
     }
 }
 
