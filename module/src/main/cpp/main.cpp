@@ -293,7 +293,6 @@ bool RegisterHook(const char* name, void* replace, void** backup) {
 }
 
 void ClearHooks() {
-    if (!hide_isolated_ && !magic_handle_app_zygote_) return;
     xhook_enable_debug(0); // Suppress log in app process
     xhook_enable_sigsegv_protection(0);
     bool failed = false;
@@ -404,7 +403,6 @@ int UnshareReplace(int flags) {
 }
 
 void RegisterHooks() {
-    if (!hide_isolated_ && !magic_handle_app_zygote_) return;
     xhook_enable_debug(1);
     xhook_enable_sigsegv_protection(0);
     bool failed = false;
