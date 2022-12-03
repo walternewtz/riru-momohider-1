@@ -7,7 +7,11 @@ OLD_DATA_DIR_2="/data/misc/isolatedmagiskhider/"
 RIRU_API=0
 
 ui_print "- This is an open source project"
-ui_print "- You can find its source code at https://github.com/canyie/Riru-MomoHider"
+ui_print "- You can find the source here:"
+ui_print "  https://github.com/HuskyDG/Riru-MomoHider"
+ui_print "- The original author is canyie"
+ui_print "- You can find the original source:"
+ui_print "  https://github.com/canyie/Riru-MomoHider"
 
 if [ $ARCH != "arm" ] && [ $ARCH != "arm64" ] && [ $ARCH != "x86" ] && [ $ARCH != "x64" ]; then
   abort "! Unsupported platform: $ARCH"

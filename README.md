@@ -1,10 +1,4 @@
 # Riru - MomoHider (aka IsolatedMagiskHider)
-## ~~Deprecation Notice~~
-Hi, today is 2022/2/1, happy Chinese new year! 
-
-One year ago, I made this project because my bank app detected the device is rooted and reject to run. Initially I just want to help others so I made this public. But in the past year, things are not going the way I want -- someone just downloads my module, changes the author and claim it's their work; more seriously, my module with unknown changes was built into a cheat program. Finally my kindness ended up being a tool for outlaws. So, I chose to develop a new hide module "Shamiko" with other developers in the LSPosed team. The new module will only support Zygisk, and provides more functionality than MagiskHide. I believe the module will be the complete solution if you want to use MagiskHide on Magisk v24+! But, To keep things from getting out of hand again, the new module will NOT open source, and rejects any modification. 
-
-We expect to officially release Shamiko on February 2nd. [Click here to download Shamiko.](https://lsposed.github.io/)
 
 ## Background
 
@@ -72,7 +66,8 @@ https://www.gnu.org/licenses/gpl-faq.en.html#DistributingSourceIsInconvenient
 ## Credits
 - [Magisk](https://github.com/topjohnwu/Magisk)
 - [Riru](https://github.com/RikkaApps/Riru)
-- [xHook](https://github.com/iqiyi/xHook)
+- ~~[xHook](https://github.com/iqiyi/xHook)~~
+- [LSPlt](https://lsposed.org/LSPlt)
 
 ## License
 The project uses Magisk's source code, so its license follows Magisk's license.

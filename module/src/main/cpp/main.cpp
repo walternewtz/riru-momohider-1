@@ -12,10 +12,20 @@
 #include <pthread.h>
 #include <dirent.h>
 #include <jni.h>
-#include <xhook.h>
 #include "log.h"
 #include "external/magisk/magiskhide.h"
 #include "external/riru/riru.h"
+#include <lsplt.hpp>
+#include <vector>
+
+
+static bool hook_register(ino_t inode, const char *symbol, void *new_func, void **old_func) {
+    if (!lsplt::RegisterHook(inode, symbol, new_func, old_func)) {
+        LOGE("Failed to register hook \"%s\"\n", symbol);
+        return false;
+    }
+    return true;
+}
 
 #define USE_NEW_APP_ZYGOTE_MAGIC 1
 
@@ -33,6 +43,10 @@ bool isolated_ = false;
 bool app_zygote_ = false;
 bool no_new_ns_ = false;
 bool is_target = false;
+bool installed_hook = false;
+
+
+ino_t android_runtime_inode = 0;
 
 jstring* nice_name_ = nullptr;
 
@@ -59,7 +73,6 @@ bool Exists(const char* name) {
     char path[128] = {0};
     ConfigPath(name, path);
     if (access(path, F_OK) == 0) return true;
-    LOGD("access %s failed: %s", path, strerror(errno));
     return false;
 }
 
@@ -256,8 +269,8 @@ void InitProcessState(int uid, bool is_child_zygote, const char *process) {
     for (int i=0; process[i]; i++){
         if (process[i] == ':'){
             buf2[i] = '\0';
-	        break;
-	    }
+            break;
+        }
         buf2[i] = process[i];
     }
     int app_id = uid % 100000;
@@ -283,33 +296,18 @@ void ClearProcessState() {
     nice_name_ = nullptr;
 }
 
-bool RegisterHook(const char* name, void* replace, void** backup) {
-    int ret = xhook_register(".*\\libandroid_runtime.so$", name, replace, backup);
-    if (ret != 0) {
-        LOGE("Failed to hook %s", name);
-        return true;
-    }
-    return false;
-}
-
 void ClearHooks() {
-    xhook_enable_debug(0); // Suppress log in app process
-    xhook_enable_sigsegv_protection(0);
-    bool failed = false;
-#define UNHOOK(NAME) \
-failed = failed || RegisterHook(#NAME, reinterpret_cast<void*>(orig_##NAME), nullptr)
+    if (!installed_hook) return;
 
-    UNHOOK(fork);
-    if (hide_isolated_) {
-        UNHOOK(unshare);
-    }
-#undef UNHOOK
-
-    if (failed || xhook_refresh(0)) {
-        LOGE("Failed to clear hooks!");
+    if (!(lsplt::RegisterHook(android_runtime_inode, "unshare", (void*) orig_unshare, nullptr) &&
+        lsplt::RegisterHook(android_runtime_inode, "fork", (void*) orig_fork, nullptr))){
+        LOGE("unhook failed");
         return;
     }
-    xhook_clear();
+
+    if (!lsplt::CommitHook()) {
+        LOGE("hook failed\n");
+    }  
 }
 
 #if !USE_NEW_APP_ZYGOTE_MAGIC
@@ -403,24 +401,24 @@ int UnshareReplace(int flags) {
 }
 
 void RegisterHooks() {
-    xhook_enable_debug(1);
-    xhook_enable_sigsegv_protection(0);
-    bool failed = false;
-#define HOOK(NAME, REPLACE) \
-failed = failed || RegisterHook(#NAME, reinterpret_cast<void*>(REPLACE), reinterpret_cast<void**>(&orig_##NAME))
 
-    HOOK(fork, ForkReplace);
-    if (hide_isolated_) {
-        HOOK(unshare, UnshareReplace);
+    for (auto &map : lsplt::v1::MapInfo::Scan()) {
+        if (map.path.ends_with("libandroid_runtime.so")) {
+            android_runtime_inode = map.inode;
+            break;
+        }
     }
 
-#undef HOOK
+    installed_hook = hook_register(android_runtime_inode, "unshare", (void*)UnshareReplace, (void **) &orig_unshare) &&
+        hook_register(android_runtime_inode, "fork", (void*)ForkReplace, (void **) &orig_fork);
 
-    if (failed || xhook_refresh(0)) {
-        LOGE("Failed to register hooks!");
-        return;
+    if (installed_hook && lsplt::CommitHook()) {
+        LOGI("hook success\n");
+    } else {
+        LOGE("hook failed\n");
+        installed_hook = false;
     }
-    xhook_clear();
+
 }
 
 void onModuleLoaded() {

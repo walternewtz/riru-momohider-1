@@ -31,9 +31,10 @@ task clean(type: Delete) {
 }
 
 ext {
-    versionCode = 12
-    versionName = '0.0.12'
-    minMagisk = 20400
+    versionCode = 13
+    versionName = '0.0.13'
+    minMagisk = 25200
     riruApiVersion = 5 // For Riru v21
     riruNewApiVersion = 25 // For Riru v22+
+    androidTargetSdkVersion = 33
 }

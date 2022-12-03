@@ -52,11 +52,11 @@ dependencies {
 
 def moduleProp = [
         id: 'riru_momohider',
-        name: 'Riru - MomoHider',
-        author: 'canyie',
+        name: 'Riru - Isolated MagiskHider',
+        author: 'canyie, HuskyDG',
         version: rootProject.ext.versionName,
         versionCode: rootProject.ext.versionCode,
-        description: 'A Riru module tries to make Magisk more hidden. You can find its source at https://github.com/canyie/Riru-MomoHider',
+        description: 'A Riru module tries to make Magisk more hidden. You can find its source at https://github.com/HuskyDG/Riru-MomoHider',
         minMagisk: rootProject.ext.minMagisk,
         api: rootProject.ext.riruApiVersion
 ]
