@@ -402,7 +402,7 @@ int UnshareReplace(int flags) {
 
 void RegisterHooks() {
 
-    for (auto &map : lsplt::v1::MapInfo::Scan()) {
+    for (auto &map : lsplt::MapInfo::Scan()) {
         if (map.path.ends_with("libandroid_runtime.so")) {
             android_runtime_inode = map.inode;
             break;
