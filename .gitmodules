@@ -1,3 +1,0 @@
-[submodule "module/src/main/cpp/external/liblsplt"]
-	path = module/src/main/cpp/external/liblsplt
-	url = https://github.com/HuskyDG/LSPlt
