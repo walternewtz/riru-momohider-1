@@ -1,5 +1,7 @@
 # Riru - MomoHider (aka IsolatedMagiskHider)
 
+> MomoHider is deprecated
+
 ## Background
 
 Many applications now detect Magisk for security, Magisk provided "MagiskHide" to hide the modified traces but not completely hidden, magisk still can be detected by [MagiskDetector](https://github.com/vvb2060/MagiskDetector). This module tries to make it more hidden.
